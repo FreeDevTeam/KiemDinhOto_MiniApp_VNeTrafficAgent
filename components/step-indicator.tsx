@@ -1,7 +1,7 @@
 import { Check } from "lucide-react"
 import { cn } from "@/lib/utils"
 
-const STEPS = ["Thông tin", "Giấy tờ", "Kỹ thuật", "Kết quả"]
+const STEPS = ["Thông tin", "Kết nối", "Kết quả"]
 
 export function StepIndicator({ current }: { current: number }) {
   return (
