@@ -20,6 +20,7 @@ export type InspectionData = {
   vehicleVerificationCccd: string
   vehicleVerificationPassword: string
   vehicleVerified: boolean
+  checkResult?: import("@/lib/checkxe-api").FineCheckResult
   driverLicenseSource: DriverLicenseSource | null
   driverLicenseNumber: string
   driverLicenseVerificationCccd: string
