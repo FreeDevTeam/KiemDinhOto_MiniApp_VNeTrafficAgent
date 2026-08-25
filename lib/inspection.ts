@@ -6,7 +6,7 @@ export type OwnerIdSource = "vneid" | "card" | "company"
 export type VehicleCategory = "private" | "commercial" | "truck" | "tractor" | "special" | "Mô tô 2 bánh" | "Xe gắn máy (bao gồm xe máy điện) và các loại xe cơ giới tương tự"
 export type VehicleMode = "car" | "motorbike"
 
-export type ResultChannel = "zalo" | "sms" | "email"
+export type ResultChannel = "telegram" | "zalo" | "sms"
 
 export type InspectionData = {
   plate: string
@@ -14,6 +14,7 @@ export type InspectionData = {
   vehicleCategory: VehicleCategory | ""
   vehicleType: string
   phoneNumber: string
+  telegramUuid: string
   resultChannel: ResultChannel
   registration: RegistrationStatus | null
   chassisNumber: string
@@ -51,7 +52,8 @@ export const initialData: InspectionData = {
   vehicleCategory: "",
   vehicleType: "",
   phoneNumber: "",
-  resultChannel: "zalo",
+  telegramUuid: "",
+  resultChannel: "telegram",
   registration: null,
   chassisNumber: "",
   vehicleVerificationCccd: "",
