@@ -3,21 +3,28 @@ export type InsuranceStatus = "expired" | "none" | "valid"
 export type DriverLicenseSource = "vneid" | "card"
 export type OwnerIdSource = "vneid" | "card" | "company"
 
-export type VehicleCategory = "private" | "commercial" | "truck" | "tractor" | "special"
+export type VehicleCategory = "private" | "commercial" | "truck" | "tractor" | "special" | "Mô tô 2 bánh" | "Xe gắn máy (bao gồm xe máy điện) và các loại xe cơ giới tương tự"
+export type VehicleMode = "car" | "motorbike"
 
-export type ResultChannel = "zalo" | "sms" | "email"
+export type ResultChannel = "telegram" | "zalo" | "sms"
 
 export type InspectionData = {
   plate: string
+  vehicleMode: VehicleMode
   vehicleCategory: VehicleCategory | ""
   vehicleType: string
   phoneNumber: string
+  telegramUuid: string
   resultChannel: ResultChannel
   registration: RegistrationStatus | null
   chassisNumber: string
   vehicleVerificationCccd: string
   vehicleVerificationPassword: string
   vehicleVerified: boolean
+  otp: string
+  needsOtp: boolean
+  trafficToken: string
+  checkResult?: import("@/lib/checkxe-api").FineCheckResult
   driverLicenseSource: DriverLicenseSource | null
   driverLicenseNumber: string
   driverLicenseVerificationCccd: string
@@ -44,15 +51,20 @@ export type InspectionData = {
 
 export const initialData: InspectionData = {
   plate: "",
+  vehicleMode: "car",
   vehicleCategory: "",
   vehicleType: "",
   phoneNumber: "",
-  resultChannel: "zalo",
+  telegramUuid: "",
+  resultChannel: "telegram",
   registration: null,
   chassisNumber: "",
   vehicleVerificationCccd: "",
   vehicleVerificationPassword: "",
   vehicleVerified: false,
+  otp: "",
+  needsOtp: false,
+  trafficToken: "",
   driverLicenseSource: null,
   driverLicenseNumber: "",
   driverLicenseVerificationCccd: "",

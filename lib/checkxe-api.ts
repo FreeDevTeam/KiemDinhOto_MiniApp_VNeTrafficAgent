@@ -1,40 +1,11 @@
-export type ResultChannel = "zalo" | "sms" | "email"
-
-export type CheckxePayload = {
-  licensePlate: string
-  vehicleType: string
-  vehicleSubType: string
-  phoneNumber: string
-}
-
-const CACHE_KEY = "dangkiemonline:last-checkxe"
-
-export type CachedCheckxe = CheckxePayload & { resultChannel: ResultChannel }
-
-export async function checkVehicle(payload: CheckxePayload) {
-  const response = await fetch("https://ttdk.com.vn/Checkxe", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload),
-  })
-
-  if (!response.ok) throw new Error("Không thể kết nối hệ thống kiểm tra. Vui lòng thử lại.")
-  return response.headers.get("content-type")?.includes("application/json") ? response.json() : response.text()
-}
-
-export function getCachedCheckxe(): CachedCheckxe | null {
-  if (typeof window === "undefined") return null
-  try {
-    const value = window.localStorage.getItem(CACHE_KEY)
-    return value ? (JSON.parse(value) as CachedCheckxe) : null
-  } catch { return null }
-}
-
-export function saveCachedCheckxe(value: CachedCheckxe) {
-  if (typeof window === "undefined") return
-  window.localStorage.setItem(CACHE_KEY, JSON.stringify(value))
-}
-
-export function clearCachedCheckxe() {
-  if (typeof window !== "undefined") window.localStorage.removeItem(CACHE_KEY)
-}
+export type ResultChannel = "telegram" | "zalo" | "sms"
+export type LoginResult = { token: string }
+export type CheckxePayload = { licensePlate: string; vehicleType: string; vehicleSubType: string; phoneNumber: string; cccd?: string; otp?: string; token?: string }
+export type FineCheckResult = { status: "clear" | "fined"; licensePlate: string; vehicleType: string; plateColor: string; violation?: { error: string; time: string; location: string }; detection?: { unit: string; address: string; phone?: string }; resolution?: { unit: string; address: string; phone?: string } }
+export class AuthenticationFailedError extends Error { code = "INCORRECT_PASSWORD"; constructor() { super("INCORRECT_PASSWORD") } }
+export class InvalidOtpError extends Error { code = "INCORRECT_OTP"; constructor() { super("INCORRECT_OTP") } }
+export class InvalidUsernameError extends Error { code = "INVALID_USERNAME"; constructor() { super("INVALID_USERNAME") } }
+type LoginResponse = { statusCode?: number; error?: string | null; message?: string; data?: { token?: string } }
+type LookupResponse = { statusCode?: number; error?: string | null; message?: string; data?: Array<{ customerRecordPlatenumber?: string; customerRecordPlateColor?: string; vehicleType?: number; crimeRecordContent?: string; crimeRecordStatus?: string; crimeRecordTime?: string; crimeRecordLocation?: string; crimeRecordPIC?: string; crimeRecordAddressPIC?: string; crimeRecordContact?: string; crimeRecordAgency?: string; crimeRecordAddressAgency?: string }> }
+export async function loginTraffic(username: string, otp?: string): Promise<LoginResult> { const response = await fetch("/api/traffic", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "login", username, otp }) }); const result = await response.json() as LoginResponse; if (result.error === "INCORRECT_PASSWORD") throw new AuthenticationFailedError(); if (result.error === "INCORRECT_OTP") throw new InvalidOtpError(); if (result.error === "INVALID_USERNAME") throw new InvalidUsernameError(); if (!response.ok || !result.data?.token) throw new Error(result.message || "Đăng nhập thất bại"); return { token: result.data.token } }
+export async function lookupVehicle(payload: CheckxePayload): Promise<FineCheckResult> { const response = await fetch("/api/traffic", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "lookup", token: payload.token, plateNumber: payload.licensePlate.replace(/[.\-\s]/g, "").toUpperCase(), vehicleType: payload.vehicleType ? 1 : 1, phoneNumber: payload.phoneNumber }) }); const result = await response.json() as LookupResponse; if (!response.ok || result.error) throw new Error(result.message || "Tra cứu thất bại"); const item = result.data?.[0]; const fined = Boolean(item); return { status: fined ? "fined" : "clear", licensePlate: item?.customerRecordPlatenumber || payload.licensePlate, vehicleType: item?.vehicleType === 1 ? "Ô tô" : payload.vehicleType || "Ô tô", plateColor: item?.customerRecordPlateColor || "Nền mầu trắng, chữ và số màu đen", ...(item ? { violation: { error: item.crimeRecordContent || "", time: item.crimeRecordTime || "", location: item.crimeRecordLocation || "" }, detection: { unit: item.crimeRecordPIC || "", address: item.crimeRecordAddressPIC || "", phone: item.crimeRecordContact }, resolution: { unit: item.crimeRecordAgency || "", address: item.crimeRecordAddressAgency || "" } } : {}) } }
