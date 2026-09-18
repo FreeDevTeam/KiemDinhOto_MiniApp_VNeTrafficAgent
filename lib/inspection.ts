@@ -21,6 +21,9 @@ export type InspectionData = {
   vehicleVerificationCccd: string
   vehicleVerificationPassword: string
   vehicleVerified: boolean
+  otp: string
+  needsOtp: boolean
+  trafficToken: string
   checkResult?: import("@/lib/checkxe-api").FineCheckResult
   driverLicenseSource: DriverLicenseSource | null
   driverLicenseNumber: string
@@ -59,6 +62,9 @@ export const initialData: InspectionData = {
   vehicleVerificationCccd: "",
   vehicleVerificationPassword: "",
   vehicleVerified: false,
+  otp: "",
+  needsOtp: false,
+  trafficToken: "",
   driverLicenseSource: null,
   driverLicenseNumber: "",
   driverLicenseVerificationCccd: "",
